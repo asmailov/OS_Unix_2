@@ -3,6 +3,18 @@
 int main()
 {
 	init();
-    getchar();
+	// Main cycle
+	while(input != EOF)
+	{
+		input = getchar();
+		// If "enter" is pressed print promt.
+		if (input == '\n')
+		{
+			printPromt();
+		} else
+		{
+			getCommands();
+		}
+	}
     return 0;
 }

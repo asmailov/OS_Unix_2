@@ -26,3 +26,16 @@ void printPromt()
 	getcwd(currDir, PATH_MAX);
 	printf("%s@%s:~%s$ ", userName, hostName, currDir);
 }
+
+void getCommands()
+{
+	int i = 0;
+	/* Write input to cmd buffer until "new line" character
+	   is found or counter is over INPUT_MAX constant. */
+	while(input != '\n' && i <= INPUT_MAX)
+	{
+		cmdBuffer[i] = input;
+		i++;
+		input = getchar();
+	}
+}
