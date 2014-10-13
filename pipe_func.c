@@ -2,6 +2,7 @@
 
 void init()
 {	
+	cmdCount = 0;
 	// Getting username, hostname and currDir
 	userName = getenv("USER");
 	gethostname(hostName, HOST_NAME_MAX);
@@ -38,4 +39,15 @@ void getCommands()
 		i++;
 		input = getchar();
 	}
+	cmdBuffer[i] = '\0';
+	// Getting first command from cmdBuffer
+	char *command = strtok(cmdBuffer, "|");
+	// Getting the rest of commands
+    while(command != NULL)
+    {
+		commands[cmdCount++] = command;
+		// Note that second time using strtok(), it's first
+		// param should be NULL
+        command = strtok(NULL, "|");
+    }
 }
