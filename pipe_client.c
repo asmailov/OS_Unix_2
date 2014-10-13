@@ -13,8 +13,10 @@ int main()
 			printPromt();
 		} else
 		{
-			// Get commands from input and parse them.
+			// Get commands from input.
 			getCommands();
+			// Parse commands.
+			parseCommands();
 			printPromt();
 		}
 	}
