@@ -13,7 +13,6 @@ int pipes;
 void init()
 {	
 	cmdCount = 0;
-	pipes = 0;
 	input = '\0';
 	// Getting username, hostname and currDir
 	userName = getenv("USER");
@@ -51,10 +50,6 @@ void getCommands()
 		cmdBuffer[i] = input;
 		i++;
 		input = getchar();
-		if(cmdBuffer[i - 1] == '|')
-        {
-            pipes = 1;
-        }
 	}
 	cmdBuffer[i] = '\0';
 	// Getting first command from cmdBuffer
@@ -73,12 +68,7 @@ void getCommands()
 }
 
 void parseCommands()
-{
-	if (pipes == 1)
-	{
-		createPipes();
-	}
-	
+{	
 	char * temp = NULL, * cmdArgs[MAX_ARGUMENTS];
 	int count = 0;
 	temp = strtok(commands[0], " ");
@@ -111,6 +101,7 @@ void parseCommands()
     	}
         return;
     }
+	createPipes();
 }
 
 void createPipes()
