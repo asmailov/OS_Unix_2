@@ -8,10 +8,13 @@ char cmdBuffer[INPUT_MAX];
 char *commands[CMD_MAX];
 
 int cmdCount;
+int pipes;
 
 void init()
 {	
 	cmdCount = 0;
+	pipes = 0;
+	input = '\0';
 	// Getting username, hostname and currDir
 	userName = getenv("USER");
 	gethostname(hostName, HOST_NAME_MAX);
@@ -48,6 +51,10 @@ void getCommands()
 		cmdBuffer[i] = input;
 		i++;
 		input = getchar();
+		if(cmdBuffer[i - 1] == '|')
+        {
+            pipes = 1;
+        }
 	}
 	cmdBuffer[i] = '\0';
 	// Getting first command from cmdBuffer
@@ -67,11 +74,47 @@ void getCommands()
 
 void parseCommands()
 {
-	if(strcmp("exit", commands[0]) == 0 || strcmp("q", commands[0]) == 0)
+	if (pipes == 1)
+	{
+		createPipes();
+	}
+	
+	char * temp = NULL, * cmdArgs[MAX_ARGUMENTS];
+	int count = 0;
+	temp = strtok(commands[0], " ");
+    while(temp != NULL)
+    {
+    	cmdArgs[count++] = temp;
+        temp = strtok(NULL, " ");
+    }
+
+	// Parse exit, q commands.
+	if(strcmp("exit", cmdArgs[0]) == 0 || strcmp("q", cmdArgs[0]) == 0)
     {
         exit(EXIT_SUCCESS);
     }
 
+	// Parse cd command.
+	if(strcmp("cd", cmdArgs[0]) == 0)
+    {
+        if(cmdArgs[1] == NULL)
+    	{
+        	chdir(getenv("HOME"));
+    	}
+    	else
+    	{
+			
+        	if(chdir(cmdArgs[1]) == -1)
+        	{
+             	printf("cd: %s: No such directory\n", cmdArgs[1]);
+        	}
+    	}
+        return;
+    }
+}
+
+void createPipes()
+{
 	char * temp = NULL, * cmdArgs[MAX_ARGUMENTS];
     int newPipe[2], oldPipe[2], argCount, i, status;
     pid_t pid;

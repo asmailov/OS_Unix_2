@@ -14,10 +14,13 @@
 #include <string.h>
 #include <sys/wait.h>
 
+extern char input;
+
 void init();
 void printWelcome();
 void printPromt();
 void getCommands();
 void parseCommands();
+void createPipes();
 
 #endif
