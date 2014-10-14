@@ -73,45 +73,56 @@ void parseCommands()
     }
 
 	char * temp = NULL, * cmdArgs[MAX_ARGUMENTS];
-    int newPipe[2], oldPipe[2], aCount, i, status;
+    int newPipe[2], oldPipe[2], argCount, i, status;
     pid_t pid;
-	
+
 	for(i = 0; i < cmdCount; i++) 
     {
-        aCount = 0;
-        //printf("%s\n",commands[i]);
+        argCount = 0;
+		// Split exec and arguments.
         temp = strtok(commands[i], " ");
         while(temp != NULL)
         {
-			//printf("%s\n",temp);
-            cmdArgs[aCount++] = temp;
+            cmdArgs[argCount++] = temp;
             temp = strtok(NULL, " ");
-			
         }
-        
-        cmdArgs[aCount] = NULL;
-        
+
+        cmdArgs[argCount] = NULL;
+        // Create new pipes until we get to last command.
         if(i < cmdCount-1)
         {
             pipe(newPipe); 
         }
-
-        pid = fork();
-
+		// Fork new child process and exit if error occurs.
+        if((pid = fork()) == -1)
+        {
+        	perror("fork");
+        	exit(1);
+        }
+		// Child process
         if(pid == 0)
         {
+			// If i>0 one pipe was already made.
             if(i > 0)
             {
+				// Child process closes up output side of oldPipe.
                 close(oldPipe[1]);
+				// Input descriptor of the oldPipe is duplicated onto its standart input.
                 dup2(oldPipe[0], 0);
-                close(oldPipe[0]);
+				// Child process closes up input side of oldPipe.
+                //close(oldPipe[0]);
             }
+			// Executed until last command.
             if(i < cmdCount-1)
             {
+				// Child process closes up input side of newPipe.
                 close(newPipe[0]);
+				// Output descriptor of the newPipe is duplicated onto its standart output.
                 dup2(newPipe[1], 1);
-                close(newPipe[1]);
+				// Child process closes up output side of newPipe.
+                //close(newPipe[1]);
             }
+			// This new executed prog will have input side of the pipe as its standart input.
             if (execvp(cmdArgs[0], cmdArgs) == -1)
             {
                 printf("Error. Command not found: %s\n", cmdArgs[0]);
@@ -119,17 +130,22 @@ void parseCommands()
             exit(0);
         }
         else
+		// Parent process.
         {
             if(i > 0)
             {
+				// Remove oldPipe descriptors, since we don't need them anymore.
                 close(oldPipe[0]);
                 close(oldPipe[1]);
             }
             if(i < cmdCount-1)
             {
+				// Currently new, but soon to be old pipe descriptors are
+				// saved so we can close() and dub() later on.
                 oldPipe[0] = newPipe[0];
                 oldPipe[1] = newPipe[1];
             }
+			// At the last command we wait for child.
             if(i == cmdCount-1)
             {
                 waitpid(pid, &status, 0);
