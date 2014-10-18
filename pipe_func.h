@@ -15,6 +15,7 @@
 #include <sys/wait.h>
 
 extern char input;
+extern int debug;
 
 void init();
 void printWelcome();
