@@ -3,7 +3,7 @@
 
 // Defining constants
 #define INPUT_MAX 255
-#define CMD_MAX 10
+#define CMD_MAX 30
 #define MAX_ARGUMENTS 20
 
 // Adding libraries

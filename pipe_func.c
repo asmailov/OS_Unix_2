@@ -42,6 +42,8 @@ void printWelcome()
 void printPromt()
 {
     getcwd(currDir, PATH_MAX);
+    userName = getenv("USER");
+    gethostname(hostName, HOST_NAME_MAX);
     printf("%s@%s:~%s$ ", userName, hostName, currDir);
 }
 
@@ -155,7 +157,7 @@ void createPipes()
         // Fork new child process and exit if error occurs.
         if((pid = fork()) == -1)
         {
-            perror("fork");
+            perror("Failed to fork!");
             exit(1);
         }
         // Child process
@@ -164,24 +166,23 @@ void createPipes()
             // If i>0 one pipe was already made.
             if(i > 0)
             {
-                // Child process closes up output side of oldPipe.
+                // Child process closes up output(write) side of oldPipe.
                 close(oldPipe[1]);
-                // Input descriptor of the oldPipe is duplicated onto its standart input.
+                // Input(read) descriptor of the oldPipe is duplicated onto its standart input.
                 dup2(oldPipe[0], 0);
                 // Child process closes up input side of oldPipe.
-                // close(oldPipe[0]);
+                 close(oldPipe[0]);
             }
             // Executed until last command.
             if(i < cmdCount-1)
             {
-                // Child process closes up input side of newPipe.
+                // Child process closes up input(read) side of newPipe.
                 close(newPipe[0]);
-                // Output descriptor of the newPipe is duplicated onto its standart output.
+                // Output descriptor of the newPipe is duplicated onto its standart output(write).
                 dup2(newPipe[1], 1);
                 // Child process closes up output side of newPipe.
-                // close(newPipe[1]);
+                 close(newPipe[1]);
             }
-            // This new executed prog will have input side of the pipe as its standart input.
             if (execvp(cmdArgs[0], cmdArgs) == -1)
             {
                 printf("Error. Command not found: %s\n", cmdArgs[0]);
@@ -191,6 +192,7 @@ void createPipes()
         else
         // Parent process.
         {
+            
             if(i > 0)
             {
                 // Remove oldPipe descriptors, since we don't need them anymore.

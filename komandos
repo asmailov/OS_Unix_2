@@ -1,0 +1,2 @@
+pwd | ls -la /proc/self/fd
+pwd | ls -la /proc/self/fd | cat
